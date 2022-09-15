@@ -1,12 +1,16 @@
 import { Disclosure } from "@headlessui/react";
-import { ChevronUpIcon } from "@heroicons/react/20/solid";
+import { ChevronUpIcon, SpeakerWaveIcon } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
+
+const utterThis = new SpeechSynthesisUtterance();
+const synth = window.speechSynthesis;
 
 export default function Term({ term, meaning, deleteTerm, id }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newTerm, setTerm] = useState(term);
   const [newMeaning, setMeaning] = useState(meaning);
+  const voices = speechSynthesis.getVoices();
 
   const updateTerm = async () => {
     try {
@@ -30,6 +34,14 @@ export default function Term({ term, meaning, deleteTerm, id }) {
     }
   };
 
+  const speak = (e) => {
+    e.preventDefault();
+    utterThis.text = term;
+    utterThis.voice = voices[0];
+
+    synth.speak(utterThis);
+  };
+
   return (
     <Disclosure key={id}>
       {({ open }) => (
@@ -39,17 +51,23 @@ export default function Term({ term, meaning, deleteTerm, id }) {
               open ? "rounded-t-lg" : "rounded-lg"
             }`}
           >
-            {isEditing ? (
-              <input
-                id="term"
-                type="text"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                value={newTerm || ""}
-                onChange={(e) => setTerm(e.target.value)}
-              />
-            ) : (
-              newTerm
-            )}
+            <div className="flex">
+              {isEditing ? (
+                <input
+                  id="term"
+                  type="text"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  value={newTerm || ""}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setTerm(e.target.value);
+                  }}
+                />
+              ) : (
+                newTerm
+              )}
+              <SpeakerWaveIcon onClick={speak} className="ml-3 h-5 w-5" />
+            </div>
             <ChevronUpIcon
               className={`${
                 open ? "" : "rotate-180 transform"

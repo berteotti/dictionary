@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-black text-white flex items-center flex-col ">
+    <div className="w-full h-screen text-white flex items-center flex-col ">
       {!session ? <Auth /> : <Home key={session.user.id} session={session} />}
     </div>
   );
