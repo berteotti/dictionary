@@ -18,7 +18,7 @@ export default function Home({ session }) {
 
       let { data, error, status } = await supabase
         .from("terms")
-        .select(`id, term, meaning`)
+        .select(`id, term, meaning, translation`)
         .eq("user", user.id)
         .order("created_at", { ascending: true });
 
@@ -57,18 +57,19 @@ export default function Home({ session }) {
   };
 
   return (
-    <div className="flex justify-center items-center flex-col w-[50%] space-y-6">
+    <div className="flex justify-center items-center flex-col w-full lg:w-[50%] px-10 md:px-20 lg:px-0 space-y-6 p-5">
       <h1>Terms</h1>
       <div className="w-full">
         {loading ? (
           "Loading..."
         ) : data && data.length ? (
           <div className="space-y-2">
-            {data.map(({ id, term, meaning }) => (
+            {data.map(({ id, term, meaning, translation }) => (
               <Term
                 key={id}
                 term={term}
                 meaning={meaning}
+                translation={translation}
                 deleteTerm={() => deleteTerm(id)}
                 id={id}
               />

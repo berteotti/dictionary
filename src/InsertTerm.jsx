@@ -4,6 +4,7 @@ import { supabase } from "./supabaseClient";
 export default function InsertTerm({ session, onSubmit }) {
   const [term, setTerm] = useState(null);
   const [meaning, setMeaning] = useState(null);
+  const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const insertTerm = async (e) => {
@@ -16,6 +17,7 @@ export default function InsertTerm({ session, onSubmit }) {
       const updates = {
         term,
         meaning,
+        translation,
         user: user.id,
       };
 
@@ -27,6 +29,7 @@ export default function InsertTerm({ session, onSubmit }) {
 
       setTerm(null);
       setMeaning(null);
+      setTranslation(null);
       onSubmit();
     } catch (error) {
       alert(error.message);
@@ -71,6 +74,21 @@ export default function InsertTerm({ session, onSubmit }) {
           placeholder="Meaning..."
           value={meaning || ""}
           onChange={(e) => setMeaning(e.target.value)}
+        />
+      </div>
+      <div>
+        <label
+          for="translation"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+        >
+          Translation
+        </label>
+        <input
+          id="translation"
+          type="text"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          value={translation || ""}
+          onChange={(e) => setTranslation(e.target.value)}
         />
       </div>
       <div>
