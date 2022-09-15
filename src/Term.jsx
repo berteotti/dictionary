@@ -37,6 +37,7 @@ export default function Term({ term, meaning, deleteTerm, id }) {
   const speak = (e) => {
     e.preventDefault();
     utterThis.text = term;
+    utterThis.lang = "en-US";
     utterThis.voice = voices[0];
 
     synth.speak(utterThis);
@@ -58,10 +59,8 @@ export default function Term({ term, meaning, deleteTerm, id }) {
                   type="text"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={newTerm || ""}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    setTerm(e.target.value);
-                  }}
+                  onClick={(e) => e.preventDefault()}
+                  onChange={(e) => setTerm(e.target.value)}
                 />
               ) : (
                 newTerm
