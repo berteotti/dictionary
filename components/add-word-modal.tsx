@@ -26,8 +26,7 @@ export function AddWordModal() {
       });
       return await response.json();
     },
-    onSuccess: (result) => {
-      console.log("Word created:", result);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["words"] });
       setOpen(false);
       setWord("");
@@ -57,7 +56,12 @@ export function AddWordModal() {
               onChange={(e) => setWord(e.target.value)}
             />
           </div>
-          <Button type="submit">Save</Button>
+          <div className="flex justify-between">
+            <Button type="submit" disabled={mutation.isPending}>
+              Save
+            </Button>
+            {mutation.isPending && <p>Creating definiton...</p>}
+          </div>
         </form>
       </DialogContent>
     </Dialog>
