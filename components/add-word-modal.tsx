@@ -42,11 +42,11 @@ export function AddWordModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Add New Word</Button>
+        <Button>Add Word</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Word</DialogTitle>
+          <DialogTitle>Add Word</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
@@ -56,7 +56,7 @@ export function AddWordModal() {
               onChange={(e) => setWord(e.target.value)}
             />
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between flex-row-reverse">
             <Button type="submit" disabled={mutation.isPending}>
               Save
             </Button>

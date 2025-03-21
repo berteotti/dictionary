@@ -7,9 +7,13 @@ const client = postgres(process.env.POSTGRES_URL!, { prepare: false });
 
 const db = drizzle(client);
 
-export async function fetchWords(): Promise<Word[]> {
+export async function fetchWords(userId: string): Promise<Word[]> {
   try {
-    return await db.select().from(word).orderBy(desc(word.updatedAt));
+    return await db
+      .select()
+      .from(word)
+      .where(eq(word.userId, userId))
+      .orderBy(desc(word.updatedAt));
   } catch (error) {
     console.error("Failed to get words from database");
     throw error;
@@ -27,13 +31,14 @@ export async function fetchWord(id: string): Promise<Word> {
 }
 
 export async function createWord(
+  userId: string,
   wordName: string,
   definition: string
 ): Promise<Word> {
   try {
     const result = await db
       .insert(word)
-      .values({ word: wordName, definition })
+      .values({ userId, word: wordName, definition, language: "pt-PT" })
       .returning();
 
     return result[0];

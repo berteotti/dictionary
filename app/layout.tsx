@@ -4,6 +4,7 @@ import "./globals.css";
 import React from "react";
 import QueryProvider from "../providers/query-provider";
 import { ThemeProvider } from "next-themes";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dictionary",
+  title: "Wordbook",
   description: "Your pocket dictionary app",
 };
 
@@ -31,7 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-gray-950 text-gray-950 dark:text-gray-50`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <ClerkProvider>{children}</ClerkProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

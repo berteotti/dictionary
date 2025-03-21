@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { deleteWord, editWord, fetchWord } from "@/lib/db/queries";
 import { groqModel } from "@/lib/ai/groq";
 import { generateText } from "ai";
+import { prompt } from "@/prompt";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   _: NextRequest,
@@ -9,6 +11,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const { userId } = await auth();
+
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
     if (!id) {
       return NextResponse.json(
@@ -23,6 +30,10 @@ export async function GET(
       return NextResponse.json({ error: "Word not found" }, { status: 404 });
     }
 
+    if (word.userId !== userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
     return NextResponse.json(word, { status: 200 });
   } catch (error) {
     console.error("Error fetching word:", error);
@@ -34,12 +45,12 @@ export async function GET(
 }
 
 export async function PUT(
-  req: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const { word } = await req.json();
+    const { userId } = await auth();
 
     if (!id) {
       return NextResponse.json(
@@ -48,31 +59,29 @@ export async function PUT(
       );
     }
 
-    if (!word || typeof word !== "string") {
-      return NextResponse.json(
-        { error: "Word is required and must be a string" },
-        { status: 400 }
-      );
+    if (!userId) {
+      return new Response("Unauthorized", { status: 401 });
     }
-    const { text } = await generateText({
+
+    const word = await fetchWord(id);
+
+    if (!word) {
+      return NextResponse.json({ error: "Word not found" }, { status: 404 });
+    }
+
+    if (word.userId !== userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const { text: definition } = await generateText({
       model: groqModel,
-      system: `You are a word definition assitant. Your goal is to give a dictionary style definition of the word that will be given. Answer in portuguese from Portugal.
-
-      Make sure to follow the following structure in the example below:
-      Vestíbulo: nome masculino
-
-      1. Espaço de entrada de um edifício, geralmente amplo e decorado, que serve de acesso às diferentes partes do interior.
-      2. Área de entrada de um teatro, cinema ou outro local de espetáculo, onde os espectadores aguardam a abertura das portas ou se reúnem antes do início do espetáculo.
-      3. Em anatomia, designa uma cavidade ou espaço no interior de um órgão ou estrutura, como o vestíbulo do ouvido ou o vestíbulo da bexiga.
-      4. Figuradamente, pode designar um local de acesso ou entrada para algo, como um vestíbulo para o conhecimento ou um vestíbulo para a carreira.
-
-      Exemplos:
-      - O vestíbulo do hotel era impressionante, com um lustre enorme e um chão de mármore.
-      `,
-      prompt: word,
+      system: `${prompt}
+      
+      Try a differnt approach.`,
+      prompt: word.word,
     });
 
-    await editWord(id, word, text);
+    await editWord(id, word.word, definition);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
@@ -85,7 +94,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
