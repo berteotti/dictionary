@@ -92,14 +92,7 @@ const Words: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {words?.length ? (
-              words.map((word) => (
-                <WordItem
-                  key={word.id}
-                  id={word.id}
-                  word={word.word}
-                  definition={word.definition}
-                />
-              ))
+              words.map((word) => <WordItem key={word.id} {...word} />)
             ) : (
               <div className="text-center py-12">
                 <p className="text-slate-500">

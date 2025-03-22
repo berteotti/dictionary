@@ -33,12 +33,13 @@ export async function fetchWord(id: string): Promise<Word> {
 export async function createWord(
   userId: string,
   wordName: string,
-  definition: string
+  definition: string,
+  language: string
 ): Promise<Word> {
   try {
     const result = await db
       .insert(word)
-      .values({ userId, word: wordName, definition, language: "pt-PT" })
+      .values({ userId, word: wordName, definition, language })
       .returning();
 
     return result[0];

@@ -4,7 +4,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useState } from "react";
-import { cn } from "../lib/utils";
+import { cn, getLanguagesObject } from "../lib/utils";
 import { EditWordModal } from "./edit-word-modal";
 import { DeleteWordModal } from "./delete-word-modal";
 import { Button } from "./ui/button";
@@ -15,10 +15,13 @@ export function WordItem({
   id,
   word,
   definition,
-}: Pick<Word, "id" | "word" | "definition">) {
+  language,
+}: Pick<Word, "id" | "word" | "definition" | "language">) {
   const [isOpen, setIsOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const lang = getLanguagesObject()[language];
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -31,32 +34,41 @@ export function WordItem({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium dark:text-white">{word}</h3>
-          <div className="flex gap-2">
+          <div className="flex gap-4 items-center">
             {isOpen && (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {lang.name} {lang.flag}
+              </p>
+            )}
+            <div className="flex gap-2 items-center">
+              {isOpen && (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="h-7 w-7 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEditModal(true);
+                    }}
+                  >
+                    <RotateCwIcon className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
               <Button
                 variant="ghost"
-                className="h-7 w-7 hover:bg-slate-200 dark:hover:bg-slate-700"
+                className={cn(
+                  "h-7 w-7 hover:bg-slate-200 dark:hover:bg-slate-700",
+                  isOpen ? "flex" : "hidden group-hover:flex"
+                )}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowEditModal(true);
+                  setShowDeleteModal(true);
                 }}
               >
-                <RotateCwIcon className="h-4 w-4" />
+                <TrashIcon className="h-4 w-4" />
               </Button>
-            )}
-            <Button
-              variant="ghost"
-              className={cn(
-                "h-7 w-7 hover:bg-slate-200 dark:hover:bg-slate-700",
-                isOpen ? "flex" : "hidden group-hover:flex"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDeleteModal(true);
-              }}
-            >
-              <TrashIcon className="h-4 w-4" />
-            </Button>
+            </div>
           </div>
         </div>
       </CollapsibleTrigger>

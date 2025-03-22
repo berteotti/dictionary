@@ -9,3 +9,13 @@ export function cn(...inputs: ClassValue[]) {
 export function getLanguages() {
   return Languages;
 }
+
+export function getLanguagesObject() {
+  return Languages.reduce<Record<string, (typeof Languages)[number]>>(
+    (languageObject, language) => {
+      languageObject[language.code] = language;
+      return languageObject;
+    },
+    {}
+  );
+}

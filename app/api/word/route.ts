@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { createWord } from "@/lib/db/queries";
 import { groqModel } from "@/lib/ai/groq";
 import { generateText } from "ai";
-import { prompt } from "@/prompt";
+import { getPrompt } from "@/prompt";
 import { auth } from "@clerk/nextjs/server";
+import { getLanguagesObject } from "../../../lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const { word } = await req.json();
+    const { word, language } = await req.json();
     const { userId } = await auth();
 
     if (!userId) {
@@ -17,6 +18,13 @@ export async function POST(req: NextRequest) {
     if (!word || typeof word !== "string") {
       return NextResponse.json(
         { error: "Word is required and must be a string" },
+        { status: 400 }
+      );
+    }
+
+    if (!language || !getLanguagesObject()[language]) {
+      return NextResponse.json(
+        { error: "Language is required" },
         { status: 400 }
       );
     }
@@ -32,13 +40,20 @@ export async function POST(req: NextRequest) {
     const capitalziedWord =
       trimmedWord.charAt(0).toUpperCase() + trimmedWord.slice(1).toLowerCase();
 
+    const languageName = getLanguagesObject()[language].englishName;
+
     const { text: definition } = await generateText({
       model: groqModel,
-      system: prompt,
+      system: getPrompt(languageName),
       prompt: word,
     });
 
-    const createdWord = await createWord(userId, capitalziedWord, definition);
+    const createdWord = await createWord(
+      userId,
+      capitalziedWord,
+      definition,
+      language
+    );
 
     return NextResponse.json({ id: createdWord.id }, { status: 201 });
   } catch (error) {

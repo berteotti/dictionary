@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { deleteWord, editWord, fetchWord } from "@/lib/db/queries";
 import { groqModel } from "@/lib/ai/groq";
 import { generateText } from "ai";
-import { prompt } from "@/prompt";
+import { getPrompt } from "@/prompt";
 import { auth } from "@clerk/nextjs/server";
+import { getLanguagesObject } from "../../../../lib/utils";
 
 export async function GET(
   _: NextRequest,
@@ -73,9 +74,11 @@ export async function PUT(
       return new Response("Unauthorized", { status: 401 });
     }
 
+    const languageName = getLanguagesObject()[word.language].englishName;
+
     const { text: definition } = await generateText({
       model: groqModel,
-      system: `${prompt}
+      system: `${getPrompt(languageName)}
       
       Try a differnt approach.`,
       prompt: word.word,
